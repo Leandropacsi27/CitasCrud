@@ -22,16 +22,20 @@ public class DoctorService {
         // Pacientes de ejemplo al arrancar la app
         doctores.add(new Doctor(1L, "Luis M", "luis@example.com", "pass1"));
         doctores.add(new Doctor(2L, "Ana T", "ana@example.com", "pass2"));
+<<<<<<< HEAD
 
         idCounter = doctores.stream()
                 .mapToLong(Doctor::getId)
                 .max()
                 .orElse(0L) + 1L;
+=======
+>>>>>>> a18938dc923f655078229d11ae2c320ea376ae59
     }
 
     // GUARDAR O ACTUALIZAR
     public void guardar(Doctor doctor) {
         if (doctor.getId() == null) {
+<<<<<<< HEAD
             // NUEVO paciente - usa idCounter sincronizado
             doctor.setId(idCounter++);
             doctores.add(doctor);
@@ -46,6 +50,13 @@ public class DoctorService {
                         doctor.setPassword(doctores.get(i).getPassword());
                     }
 
+=======
+            doctor.setId(idCounter++);
+            doctores.add(doctor);
+        } else { // actualizar
+            for (int i = 0; i < doctores.size(); i++) {
+                if (doctores.get(i).getId().equals(doctor.getId())) {
+>>>>>>> a18938dc923f655078229d11ae2c320ea376ae59
                     doctores.set(i, doctor);
                     break;
                 }

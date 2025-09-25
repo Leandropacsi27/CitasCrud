@@ -4,6 +4,10 @@ package com.example.demo.controller;
 import com.example.demo.model.Doctor;
 import com.example.demo.model.Paciente;
 import com.example.demo.service.DoctorService;
+<<<<<<< HEAD
+=======
+import com.example.demo.service.PacienteService;
+>>>>>>> a18938dc923f655078229d11ae2c320ea376ae59
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -43,8 +47,12 @@ public class DoctorController {
     // EDITAR
     @GetMapping("/editar/{id}")
     public String editar(@PathVariable Long id, Model model) {
+<<<<<<< HEAD
         Doctor doctor = doctorService.buscarPorId(id);
         model.addAttribute("doctor", doctor);
+=======
+        model.addAttribute("doctor", doctorService.buscarPorId(id));
+>>>>>>> a18938dc923f655078229d11ae2c320ea376ae59
         return "formDoctor";
     }
 

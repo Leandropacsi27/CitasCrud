@@ -42,7 +42,11 @@ public class PacienteController {
     @GetMapping("/editar/{id}")
     public String editar(@PathVariable Long id, Model model) {
         Paciente paciente = pacienteService.buscarPorId(id);
+<<<<<<< HEAD
         model.addAttribute("paciente", paciente);
+=======
+        model.addAttribute("paciente",paciente);
+>>>>>>> a18938dc923f655078229d11ae2c320ea376ae59
         return "formPaciente";
     }
 
