@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Lista de Doctores</title>
+</head>
+<body>
+<h1>Lista de Doctores</h1>
+<a th:href="@{/doctores/nuevo}">Registrar nuevo doctor</a>
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Email</th>
+        <th>Password</th>
+        <th>Acciones</th>
+    </tr>
+    <tr th:each="doctor : ${doctores}">
+        <td th:text="${doctor.id}"></td>
+        <td th:text="${doctor.nombre}"></td>
+        <td th:text="${doctor.email}"></td>
+        <td th:text="${doctor.password}"></td>
+        <td>
+            <a th:href="@{'/doctores/editar/' + ${doctor.id}}">Editar</a>
+            <a th:href="@{'/doctores/eliminar/' + ${doctor.id}}">Eliminar</a>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

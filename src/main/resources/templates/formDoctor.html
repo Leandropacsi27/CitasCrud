@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Registrar Doctor</title>
+</head>
+<body>
+<h1>Registrar/Editar Doctor</h1>
+<form th:action="@{/doctores}" th:object="${doctor}" method="post">
+    <input type="hidden" th:field="*{id}">
+    <label>Nombre:</label>
+    <input type="text" th:field="*{nombre}"><br>
+    <label>Email:</label>
+    <input type="email" th:field="*{email}"><br>
+    <label>Password:</label>
+    <input type="password" th:field="*{password}"><br>
+    <button type="submit">Guardar</button>
+</form>
+</body>
+</html>
