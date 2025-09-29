@@ -1,50 +1,23 @@
 package com.example.demo.model;
 
-public class Paciente {
-    private Long id;
-    private String nombre;
-    private String email;
-    private String password;
+import java.util.List;
+
+public class Paciente extends Usuario {
+    private List<Cita> cita;
 
     public Paciente() {
+        this.setRol(Rol.PACIENTE);
     }
 
-    public Paciente(Long id, String nombre, String email, String password) {
-        this.id = id;
-        this.nombre = nombre;
-        this.email = email;
-        this.password = password;
+    public Paciente(String name, String email, String password) {
+        super(name, email, password, Rol.PACIENTE);
     }
 
-    public Long getId() {
-        return id;
+    public List<Cita> getCita() {
+        return cita;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public void setCita(List<Cita> cita) {
+        this.cita = cita;
     }
 }

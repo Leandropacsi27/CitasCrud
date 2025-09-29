@@ -1,57 +1,49 @@
 package com.example.demo.controller;
 
-
 import com.example.demo.model.Doctor;
-import com.example.demo.model.Paciente;
-import com.example.demo.service.DoctorService;
+import com.example.demo.model.Disponibilidad;
+import com.example.demo.service.DisponibilidadService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/doctores")
+@RequestMapping("/citasmedicas/doctor")
 public class DoctorController {
 
-    private final DoctorService doctorService;
+    private final DisponibilidadService disponibilidadService;
 
-    // Spring inyecta el service en el constructor
-    public DoctorController(DoctorService doctorService) {
-        this.doctorService = doctorService;
+    public DoctorController(DisponibilidadService disponibilidadService) {
+        this.disponibilidadService = disponibilidadService;
     }
 
-    // LISTAR
-    @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("doctores", doctorService.listar());
-        return "doctores"; // pacientes.html
-    }
+    @GetMapping("/dashboard")
+    public String dashboardDoctor(Model model, HttpSession session) {
+        Doctor doctor = (Doctor) session.getAttribute("usuario");
+        if (doctor == null) return "redirect:/citasmedicas/login?error=Debe iniciar sesión";
 
-    // MOSTRAR FORMULARIO NUEVO
-    @GetMapping("/nuevo")
-    public String nuevoPaciente(Model model) {
-        model.addAttribute("doctor", new Paciente());
-        return "formDoctor"; // formPaciente.html
-    }
-
-    // GUARDAR O ACTUALIZAR
-    @PostMapping
-    public String guardar(@ModelAttribute Doctor doctor) {
-        doctorService.guardar(doctor);
-        return "redirect:/doctores";
-    }
-
-    // EDITAR
-    @GetMapping("/editar/{id}")
-    public String editar(@PathVariable Long id, Model model) {
-        Doctor doctor = doctorService.buscarPorId(id);
         model.addAttribute("doctor", doctor);
-        return "formDoctor";
+        model.addAttribute("disponibilidades", disponibilidadService.obtenerDisponibilidades(doctor));
+        return "doctor/dashboard";
     }
 
-    // ELIMINAR
-    @GetMapping("/eliminar/{id}")
-    public String eliminar(@PathVariable Long id) {
-        doctorService.eliminar(id);
-        return "redirect:/doctores";
+    @PostMapping("/disponibilidad/guardar")
+    public String guardarDisponibilidad(@ModelAttribute Disponibilidad disp, HttpSession session) {
+        Doctor doctor = (Doctor) session.getAttribute("usuario");
+        if (doctor == null) return "redirect:/citasmedicas/login";
+
+        disponibilidadService.agregarDisponibilidad(doctor, disp);
+        return "redirect:/citasmedicas/doctor/dashboard";
+    }
+
+    @GetMapping("/disponibilidad/eliminar/{id}")
+    public String eliminarDisponibilidad(@PathVariable Long id, HttpSession session) {
+        Doctor doctor = (Doctor) session.getAttribute("usuario");
+        if (doctor == null) return "redirect:/citasmedicas/login";
+
+        disponibilidadService.eliminarDisponibilidad(doctor, id);
+        return "redirect:/citasmedicas/doctor/dashboard";
     }
 }
+

@@ -1,50 +1,34 @@
 package com.example.demo.model;
 
-public class Doctor {
-    private Long id;
-    private String nombre;
-    private String email;
-    private String password;
+import java.util.List;
+
+public class Doctor extends Usuario {
+    private Especialidad especialidad;
+    private List<Disponibilidad> disponibilidad;
 
     public Doctor() {
+        this.setRol(Rol.DOCTOR);
     }
 
-    public Doctor(Long id, String nombre, String email, String password) {
-        this.id = id;
-        this.nombre = nombre;
-        this.email = email;
-        this.password = password;
+    public Doctor(String name, String email, String password, Especialidad especialidad) {
+        super(name, email, password, Rol.DOCTOR);
+        this.especialidad = especialidad;
     }
 
-    public Long getId() {
-        return id;
+    // 🔥 GETTERS Y SETTERS FALTANTES
+    public Especialidad getEspecialidad() {
+        return especialidad;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setEspecialidad(Especialidad especialidad) {
+        this.especialidad = especialidad;
     }
 
-    public String getPassword() {
-        return password;
+    public List<Disponibilidad> getDisponibilidad() {
+        return disponibilidad;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setDisponibilidad(List<Disponibilidad> disponibilidad) {
+        this.disponibilidad = disponibilidad;
     }
 }

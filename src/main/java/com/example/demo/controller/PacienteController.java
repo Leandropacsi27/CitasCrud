@@ -1,55 +1,86 @@
 package com.example.demo.controller;
 
+import com.example.demo.model.Cita;
+import com.example.demo.model.Disponibilidad;
+import com.example.demo.model.Doctor;
 import com.example.demo.model.Paciente;
-import com.example.demo.service.PacienteService;
+import com.example.demo.model.Especialidad;
+import com.example.demo.service.CitaService;
+import com.example.demo.service.DoctorService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Controller
-@RequestMapping("/pacientes")
+@RequestMapping("/citasmedicas/paciente")
 public class PacienteController {
 
-    private final PacienteService pacienteService;
+    private final CitaService citaService;
+    private final DoctorService doctorService;
 
-    // Spring inyecta el service en el constructor
-    public PacienteController(PacienteService pacienteService) {
-        this.pacienteService = pacienteService;
+    public PacienteController(CitaService citaService, DoctorService doctorService) {
+        this.citaService = citaService;
+        this.doctorService = doctorService;
     }
 
-    // LISTAR
-    @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("pacientes", pacienteService.listar());
-        return "pacientes"; // pacientes.html
-    }
+    // 🔹 Dashboard principal del paciente
+    @GetMapping("/dashboard")
+    public String dashboardPaciente(Model model, HttpSession session) {
+        Paciente paciente = (Paciente) session.getAttribute("usuario");
+        if (paciente == null) return "redirect:/citasmedicas/login?error=Debe iniciar sesión";
 
-    // MOSTRAR FORMULARIO NUEVO
-    @GetMapping("/nuevo")
-    public String nuevoPaciente(Model model) {
-        model.addAttribute("paciente", new Paciente());
-        return "formPaciente"; // formPaciente.html
-    }
-
-    // GUARDAR O ACTUALIZAR
-    @PostMapping
-    public String guardar(@ModelAttribute Paciente paciente) {
-        pacienteService.guardar(paciente);
-        return "redirect:/pacientes";
-    }
-
-    // EDITAR
-    @GetMapping("/editar/{id}")
-    public String editar(@PathVariable Long id, Model model) {
-        Paciente paciente = pacienteService.buscarPorId(id);
         model.addAttribute("paciente", paciente);
-        return "formPaciente";
+        model.addAttribute("especialidades", Especialidad.values()); // enum con las 6 especialidades
+        model.addAttribute("citas", citaService.obtenerCitasPorPaciente(paciente));
+
+        return "paciente/dashboard";
     }
 
-    // ELIMINAR
-    @GetMapping("/eliminar/{id}")
-    public String eliminar(@PathVariable Long id) {
-        pacienteService.eliminar(id);
-        return "redirect:/pacientes";
+    // 🔹 Filtrar doctores por especialidad (AJAX o fragmento Thymeleaf)
+    @GetMapping("/doctores")
+    @ResponseBody
+    public List<Doctor> obtenerDoctoresPorEspecialidad(@RequestParam Especialidad especialidad) {
+        return doctorService.obtenerPorEspecialidad(especialidad);
+    }
+
+    // 🔹 Obtener disponibilidades de un doctor específico
+    @GetMapping("/disponibilidades")
+    @ResponseBody
+    public List<Disponibilidad> obtenerDisponibilidades(@RequestParam Long doctorId) {
+        return citaService.obtenerDisponibilidadesPorDoctor(doctorId);
+    }
+
+    // 🔹 Agendar cita
+    @PostMapping("/citas/agendar")
+    public String agendarCita(@RequestParam Long doctorId,
+                              @RequestParam Long disponibilidadId,
+                              @RequestParam(required = false) String nota,
+                              HttpSession session) {
+        Paciente paciente = (Paciente) session.getAttribute("usuario");
+        if (paciente == null) return "redirect:/citasmedicas/login";
+
+        try {
+            citaService.agendarCita(paciente, doctorId, disponibilidadId, nota);
+            return "redirect:/citasmedicas/paciente/dashboard?success=Cita agendada&seccion=misCitas";
+        } catch (IllegalArgumentException e) {
+            return "redirect:/citasmedicas/paciente/dashboard?error=" + e.getMessage() + "&seccion=nuevaCita";
+        }
+    }
+
+    // 🔹 Cancelar cita
+    @PostMapping("/citas/cancelar/{citaId}")
+    public String cancelarCita(@PathVariable Long citaId, HttpSession session) {
+        Paciente paciente = (Paciente) session.getAttribute("usuario");
+        if (paciente == null) return "redirect:/citasmedicas/login";
+
+        try {
+            citaService.cancelarCita(citaId, paciente);
+            return "redirect:/citasmedicas/paciente/dashboard?success=Cita cancelada&seccion=misCitas";
+        } catch (IllegalArgumentException e) {
+            return "redirect:/citasmedicas/paciente/dashboard?error=" + e.getMessage() + "&seccion=misCitas";
+        }
     }
 }

@@ -2,67 +2,76 @@ package com.example.demo.service;
 
 import com.example.demo.model.Paciente;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PacienteService {
 
     private final List<Paciente> pacientes = new ArrayList<>();
-    private Long idCounter = 1L;
 
-    // LISTAR
-    public List<Paciente> listar() {
-        return pacientes;
-    }
 
     public PacienteService() {
-        // Pacientes de ejemplo al arrancar la app
-        pacientes.add(new Paciente(1L, "Luis Torres", "luis@example.com", "pass1"));
-        pacientes.add(new Paciente(2L, "Ana Ramos", "ana@example.com", "pass2"));
-
-        idCounter = pacientes.stream()
-                .mapToLong(Paciente::getId)
-                .max()
-                .orElse(0L) + 1L;
+        // Datos iniciales
+        pacientes.add(new Paciente("Luis M", "luis@example.com", "123"));
     }
 
-
-    // GUARDAR O ACTUALIZAR (MEJORADO)
-    public void guardar(Paciente paciente) {
-        if (paciente.getId() == null) {
-            // NUEVO paciente - usa idCounter sincronizado
-            paciente.setId(idCounter++);
-            pacientes.add(paciente);
-        } else {
-            // ACTUALIZAR paciente existente
-            for (int i = 0; i < pacientes.size(); i++) {
-                if (pacientes.get(i).getId().equals(paciente.getId())) {
-
-                    // ✅ Mantener password si viene vacío
-                    if (paciente.getPassword() == null ||
-                            paciente.getPassword().trim().isEmpty()) {
-                        paciente.setPassword(pacientes.get(i).getPassword());
-                    }
-
-                    pacientes.set(i, paciente);
-                    break;
-                }
-            }
+    public Paciente registrarPaciente(Paciente paciente) {
+        // 1. Validar que el email no exista
+        if (buscarPorEmail(paciente.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("El email " + paciente.getEmail() + " ya está registrado");
         }
+
+        // 2. Asignar ID automático
+        paciente.asignarId();
+
+        // 3. Guardar en la lista
+        pacientes.add(paciente);
+
+        return paciente; // Devuelve el paciente directamente, sin Optional
     }
 
-    // ELIMINAR
-    public void eliminar(Long id) {
+    // Buscar paciente por email
+    public Optional<Paciente> buscarPorEmail(String email) {
+        return pacientes.stream()
+                .filter(p -> p.getEmail().equalsIgnoreCase(email))
+                .findFirst();
+    }
+
+    // Obtener todos los pacientes
+    public List<Paciente> obtenerTodos() {
+        return new ArrayList<>(pacientes);
+    }
+
+    // Buscar paciente por ID
+    public Optional<Paciente> buscarPorId(Long id) {
+        return pacientes.stream()
+                .filter(p -> p.getId().equals(id))
+                .findFirst();
+    }
+
+    // Contar total de pacientes
+    public int totalPacientes() {
+        return pacientes.size();
+    }
+
+    public void actualizarPaciente(Long id, Paciente pacienteActualizado) {
+        Paciente pacienteExistente = buscarPorId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado"));
+
+        pacienteExistente.setName(pacienteActualizado.getName());
+        pacienteExistente.setEmail(pacienteActualizado.getEmail());
+        pacienteExistente.setPassword(pacienteActualizado.getPassword());
+    }
+
+    public void eliminarPaciente(Long id) {
         pacientes.removeIf(p -> p.getId().equals(id));
     }
 
-    // BUSCAR POR ID (para editar)
-    public Paciente buscarPorId(Long id) {
+    public Optional<Paciente> autenticar(String email, String password) {
         return pacientes.stream()
-                .filter(p -> p.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+                .filter(p -> p.getEmail().equals(email) && p.getPassword().equals(password))
+                .findFirst();
     }
 }
